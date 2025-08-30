@@ -1,47 +1,48 @@
-#FRAUD/FAKE NGO DETECTION - LOGISTIC REGRESSION CLASSIFIER
+#UREGENCY AND PRIORITY PREDICTION SYSTEM - DECISION TREE CLASSIFIER
 
 import pandas as pd
 import random
+from datetime import datetime, timedelta
 import os
 
 # Parameters
-num_entities = 2000
-folder_path = r"C:\Users\kanis\OneDrive\Desktop\KANISHKA\PROJECT\orphange\data\dataset3"
+num_children = 2000
+folder_path = r"C:\Users\kanis\OneDrive\Desktop\KANISHKA\PROJECT\orphange\data\dataset4"
 os.makedirs(folder_path, exist_ok=True)
 
-#data generation
+# Generate dataset
 rows = []
-for i in range(1, num_entities+1):
-    entity_type = random.choice(['NGO','Orphanage'])
-    entity_id = f"{'N' if entity_type=='NGO' else 'O'}{i}"
-    is_real = random.choices([1,0], weights=[0.7,0.3])[0]
+for i in range(1, num_children+1):
+    child_id = f"C{i}"
+    need_type = random.choice(['Food','Health'])  # only these two types
+    request_date = datetime.now() - timedelta(days=random.randint(0,30))
+    request_date_str = request_date.strftime("%Y-%m-%d")
 
-    if is_real:
-        years_active = random.randint(5,30)
-        doc_verified = 1
-        total_donations = random.randint(50000,500000)
-        avg_donation_amount = random.randint(500,5000)
-        donor_reviews_score = round(random.uniform(3,5),1)
-        success_rate = random.randint(70,100)
+    amount_required = random.randint(500, 5000) 
+    percent_funded = round(random.uniform(0, 100),1)
+    num_sponsors = random.randint(0,10)
+    last_updated_days = random.randint(0,30)
+    
+    # Weighted score for criticality
+    score = (1 - percent_funded/100)*0.4 + (1 - min(num_sponsors/10,1))*0.2 + min(last_updated_days/30,1)*0.4
+
+    if score > 0.7:
+        criticality_label = 'High'
+    elif score > 0.3:
+        criticality_label = 'Medium'
     else:
-        years_active = random.randint(0,5)
-        doc_verified = 0
-        total_donations = random.randint(0,50000)
-        avg_donation_amount = random.randint(100,5000)
-        donor_reviews_score = round(random.uniform(0,3),1)
-        success_rate = random.randint(0,50)
-
-    # Normalize features (0-1)
-    norm_years = years_active / 30
-    norm_total_donations = total_donations / 500000
-    norm_reviews = donor_reviews_score / 5
-    norm_success = success_rate / 100
-    score = (0.1*norm_years + 0.4*doc_verified + 0.1*norm_total_donations + 0.2*norm_reviews + 0.2*norm_success)
-    label = 1 if score >= 0.3 else 0
-    rows.append([ entity_id, entity_type, years_active, doc_verified, total_donations, avg_donation_amount, donor_reviews_score, success_rate, label ])
-
+        criticality_label = 'Low'
+    
+    rows.append([
+        child_id, need_type, request_date_str, amount_required,
+        percent_funded, num_sponsors, last_updated_days, criticality_label
+    ])
 
 df = pd.DataFrame(rows, columns=[
-    'entity_id','entity_type','years_active','doc_verified','total_donations','avg_donation_amount','donor_reviews_score','success_rate','label'])
-df.to_csv(os.path.join(folder_path,'fraud_fake_ngo_orphanage_weighted_realistic.csv'), index=False)
+    'child_id','need_type','request_date','amount_required',
+    'percent_funded','num_sponsors','last_updated_days','criticality_label'
+])
+
+df.to_csv(os.path.join(folder_path,'orphanage_children_urgency.csv'), index=False)
 print(f"Generated {len(df)} rows at {folder_path}")
+    
