@@ -16,19 +16,16 @@ y = df['criticality_label']
 X = pd.get_dummies(X, columns=['need_type'], drop_first=True)
 
 
-# Split into train-test
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42, stratify=y)
 
-# Train Decision Tree
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42, stratify=y)
 model = DecisionTreeClassifier(
     criterion='entropy',
     max_depth=6,  
     class_weight='balanced',
     random_state=42
 )
-model.fit(X_train, y_train)
 
-# Predictions
+model.fit(X_train, y_train)
 y_pred = model.predict(X_test)
 
 # Evaluation
