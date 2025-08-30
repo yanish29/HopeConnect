@@ -19,5 +19,5 @@ export default defineConfig(({ mode }) => ({
       "@": path.resolve(__dirname, "./src"),
     },
   },
-  base: 'kind-link-bridge', 
+  base: '/kind-link-bridge/', 
 }));
